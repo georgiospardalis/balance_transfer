@@ -25,6 +25,9 @@ INSERT INTO account(balance, version) VALUES(10000.00, 1); /*Account id is 4 */
 
 The endpoint should be under `http://localhost:28960/transaction/balance_transfer`. The request method is `PUT`,
 the content-type `application/json` and the body requires the three following fields:
+- `source-account` -> source account Id,
+- `target-account` -> destination account Id,
+- `amount` -> amount of funds to transfer in between the accounts,
 ```json
 {
   "source-account": "1",
