@@ -1,5 +1,6 @@
 package pardalis.unit;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import pardalis.dto.TransferOrderDTO;
@@ -39,7 +40,7 @@ public class RequestValidatorImplTest {
         try {
             this.requestValidator.validateTransferOrderDTO(transferOrderDTO);
         } catch (RequestValidationException e) {
-            assert (e.getMessage().equals(RequestValidationError.TRANSFER_ACCOUNT_MISSING.toString()));
+            Assert.assertEquals(e.getMessage(), (RequestValidationError.TRANSFER_ACCOUNT_MISSING.toString()));
         }
     }
 
@@ -53,7 +54,7 @@ public class RequestValidatorImplTest {
         try {
             this.requestValidator.validateTransferOrderDTO(transferOrderDTO);
         } catch (RequestValidationException e) {
-            assert(e.getMessage().equals(RequestValidationError.TRANSFER_ACCOUNT_MISSING.toString()));
+            Assert.assertEquals(e.getMessage(), RequestValidationError.TRANSFER_ACCOUNT_MISSING.toString());
         }
     }
 
@@ -67,7 +68,7 @@ public class RequestValidatorImplTest {
         try {
             this.requestValidator.validateTransferOrderDTO(transferOrderDTO);
         } catch (RequestValidationException e) {
-            assert(e.getMessage().equals(RequestValidationError.TRANSFER_ACCOUNT_MISSING.toString()));
+            Assert.assertEquals(e.getMessage(), RequestValidationError.TRANSFER_ACCOUNT_MISSING.toString());
         }
     }
 
@@ -81,7 +82,7 @@ public class RequestValidatorImplTest {
         try {
             this.requestValidator.validateTransferOrderDTO(transferOrderDTO);
         } catch (RequestValidationException e) {
-            assert(e.getMessage().equals(RequestValidationError.TRANSFER_ACCOUNT_INVALID.toString()));
+            Assert.assertEquals(e.getMessage(), RequestValidationError.TRANSFER_ACCOUNT_INVALID.toString());
         }
     }
 
@@ -95,7 +96,7 @@ public class RequestValidatorImplTest {
         try {
             this.requestValidator.validateTransferOrderDTO(transferOrderDTO);
         } catch (RequestValidationException e) {
-            assert(e.getMessage().equals(RequestValidationError.TRANSFER_ACCOUNT_INVALID.toString()));
+            Assert.assertEquals(e.getMessage(), RequestValidationError.TRANSFER_ACCOUNT_INVALID.toString());
         }
     }
 
@@ -109,7 +110,7 @@ public class RequestValidatorImplTest {
         try {
             this.requestValidator.validateTransferOrderDTO(transferOrderDTO);
         } catch (RequestValidationException e) {
-            assert(e.getMessage().equals(RequestValidationError.TRANSFER_ACCOUNT_INVALID.toString()));
+            Assert.assertEquals(e.getMessage(), RequestValidationError.TRANSFER_ACCOUNT_INVALID.toString());
         }
     }
 
@@ -123,7 +124,7 @@ public class RequestValidatorImplTest {
         try {
             this.requestValidator.validateTransferOrderDTO(transferOrderDTO);
         } catch (RequestValidationException e) {
-            assert(e.getMessage().equals(RequestValidationError.TRANSFER_SAME_ACCOUNT.toString()));
+            Assert.assertEquals(e.getMessage(), RequestValidationError.TRANSFER_SAME_ACCOUNT.toString());
         }
     }
 
@@ -137,7 +138,7 @@ public class RequestValidatorImplTest {
         try {
             this.requestValidator.validateTransferOrderDTO(transferOrderDTO);
         } catch (RequestValidationException e) {
-            assert(e.getMessage().equals(RequestValidationError.TRANSFER_LESS_THAN_OR_ZERO.toString()));
+            Assert.assertEquals(e.getMessage(), RequestValidationError.TRANSFER_LESS_THAN_OR_ZERO.toString());
         }
     }
 
@@ -151,7 +152,7 @@ public class RequestValidatorImplTest {
         try {
             this.requestValidator.validateTransferOrderDTO(transferOrderDTO);
         } catch (RequestValidationException e) {
-            assert(e.getMessage().equals(RequestValidationError.TRANSFER_LESS_THAN_OR_ZERO.toString()));
+            Assert.assertEquals(e.getMessage(), RequestValidationError.TRANSFER_LESS_THAN_OR_ZERO.toString());
         }
     }
 }
