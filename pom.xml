@@ -154,16 +154,9 @@
     <resources>
       <resource>
         <directory>src/main/resources</directory>
-        <filtering>false</filtering>
+        <filtering>true</filtering>
       </resource>
     </resources>
-    <testResources>
-      <testResource>
-        <directory>src/test/resources</directory>
-        <filtering>false</filtering>
-      </testResource>
-    </testResources>
-
     <plugins>
       <!-- Setting Compiler Level -->
       <plugin>

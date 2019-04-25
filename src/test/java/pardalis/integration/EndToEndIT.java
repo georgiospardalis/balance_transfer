@@ -14,11 +14,13 @@ import pardalis.entity.Account;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
+import javax.persistence.Query;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
@@ -34,8 +36,10 @@ public class EndToEndIT {
 
         properties.load(inputStream);
 
+        String persistenceUnit = properties.getProperty("persistenceUnit") + "Tester";
+
         requestUrl = requestUrl + properties.getProperty("jetty.server.port") + "/transaction/balance_transfer";
-        entityManagerFactory = Persistence.createEntityManagerFactory(properties.getProperty("persistenceUnit"));
+        entityManagerFactory = Persistence.createEntityManagerFactory(persistenceUnit);
         entityManager = entityManagerFactory.createEntityManager();
     }
 
@@ -48,15 +52,17 @@ public class EndToEndIT {
 
     @Test
     public void transferOK_IT() throws Exception {
-        String requestBody = "{ \"source-account\": \"2\",\n" +
-                "\t\"target-account\": \"3\",\n" +
+        BigInteger sourceAccountId = new BigInteger("2");
+        BigInteger targetAccountId = new BigInteger("3");
+        Account sourceAccountBefore = entityManager.find(Account.class, sourceAccountId);
+        Account targetAccountBefore = entityManager.find(Account.class, targetAccountId);
+
+        Assert.assertNotNull(sourceAccountBefore);
+        Assert.assertNotNull(targetAccountBefore);
+
+        String requestBody = "{ \"source-account\": \"" + sourceAccountId.toString() + "\",\n" +
+                "\t\"target-account\": \"" + targetAccountId.toString() + "\",\n" +
                 "\t\"amount\": \"500.0\" }";
-
-        Account sourceAccountUntouched = entityManager.find(Account.class, 2);
-        Account targetAccountUntouched = entityManager.find(Account.class, 3);
-
-        Assert.assertNotNull(sourceAccountUntouched);
-        Assert.assertNotNull(targetAccountUntouched);
 
         CloseableHttpResponse closeableHttpResponse = sendRequestWithBody(requestBody);
 
@@ -67,19 +73,23 @@ public class EndToEndIT {
 
         Assert.assertTrue(responseBody.toLowerCase().contains("successful transaction"));
 
-        Account sourceAccountAltered = entityManager.find(Account.class, 2);
-        Account targetAccountAltered = entityManager.find(Account.class, 3);
+        Account sourceAccountAfter = entityManager.find(Account.class, sourceAccountId);
+        Account targetAccountAfter = entityManager.find(Account.class, targetAccountId);
 
-        Assert.assertNotNull(sourceAccountAltered);
-        Assert.assertNotNull(targetAccountAltered);
-        Assert.assertEquals(sourceAccountUntouched.getBalance().subtract(sourceAccountAltered.getBalance()), new BigDecimal("500.0"));
+        Assert.assertNotNull(sourceAccountAfter);
+        Assert.assertNotNull(targetAccountAfter);
+        Assert.assertEquals(sourceAccountBefore.getBalance().subtract(sourceAccountAfter.getBalance()), new BigDecimal("500.0"));
     }
 
     @Test
     public void transferNoAccount_IT() throws Exception {
+        BigInteger targetAccountId = new BigInteger("3");
+        Account targetAccountBefore = entityManager.find(Account.class, targetAccountId);
+
         String requestBody = "{ \"source-account\": \"\",\n" +
-                "\t\"target-account\": \"3\",\n" +
+                "\t\"target-account\": \"" + targetAccountId.toString() + "\",\n" +
                 "\t\"amount\": \"500.0\" }";
+
         CloseableHttpResponse closeableHttpResponse = sendRequestWithBody(requestBody);
 
         Assert.assertEquals(closeableHttpResponse.getStatusLine().getStatusCode(), 200);
@@ -88,13 +98,26 @@ public class EndToEndIT {
         String responseBody = bufferedReader.lines().collect(Collectors.joining(System.lineSeparator()));
 
         Assert.assertEquals(responseBody, "{\"transfer-status\":\"Must provide both Accounts\"}");
+
+        if (targetAccountBefore != null) {
+            Account targetAccountAfter = entityManager.find(Account.class, targetAccountId);
+
+            Assert.assertNotNull(targetAccountAfter);
+            Assert.assertEquals(targetAccountAfter, targetAccountBefore);
+        }
     }
 
     @Test
     public void transferAmountNegative_IT() throws Exception {
-        String requestBody = "{ \"source-account\": \"1\",\n" +
-                "\t\"target-account\": \"3\",\n" +
+        BigInteger sourceAccountId = new BigInteger("1");
+        BigInteger targetAccountId = new BigInteger("3");
+        Account sourceAccountBefore = entityManager.find(Account.class, sourceAccountId);
+        Account targetAccountBefore = entityManager.find(Account.class, targetAccountId);
+
+        String requestBody = "{ \"source-account\": \"" + sourceAccountId.toString() + "\",\n" +
+                "\t\"target-account\": \"" + targetAccountId.toString() + "\",\n" +
                 "\t\"amount\": \"-500.0\" }";
+
         CloseableHttpResponse closeableHttpResponse = sendRequestWithBody(requestBody);
 
         Assert.assertEquals(closeableHttpResponse.getStatusLine().getStatusCode(), 200);
@@ -103,14 +126,36 @@ public class EndToEndIT {
         String responseBody = bufferedReader.lines().collect(Collectors.joining(System.lineSeparator()));
 
         Assert.assertEquals(responseBody, "{\"transfer-status\":\"Transfer Amount cannot be negative\"}");
-    }
 
+        if (sourceAccountBefore != null) {
+            Account sourceAccountAfter = entityManager.find(Account.class, sourceAccountId);
+
+            Assert.assertNotNull(sourceAccountAfter);
+            Assert.assertEquals(sourceAccountAfter, sourceAccountBefore);
+        }
+
+        if (targetAccountBefore != null) {
+            Account targetAccountAfter = entityManager.find(Account.class, targetAccountId);
+
+            Assert.assertNotNull(targetAccountAfter);
+            Assert.assertEquals(targetAccountAfter, targetAccountBefore);
+        }
+    }
 
     @Test
     public void transferInsufficientBalance_IT() throws Exception {
-        String requestBody = "{ \"source-account\": \"1\",\n" +
-                "\t\"target-account\": \"3\",\n" +
+        BigInteger sourceAccountId = new BigInteger("1");
+        BigInteger targetAccountId = new BigInteger("3");
+        Account sourceAccountBefore = entityManager.find(Account.class, sourceAccountId);
+        Account targetAccountBefore = entityManager.find(Account.class, targetAccountId);
+
+        Assert.assertNotNull(sourceAccountBefore);
+        Assert.assertNotNull(targetAccountBefore);
+
+        String requestBody = "{ \"source-account\": \"" + sourceAccountId.toString() + "\",\n" +
+                "\t\"target-account\": \"" + targetAccountId.toString() + "\",\n" +
                 "\t\"amount\": \"100500.0\" }";
+
         CloseableHttpResponse closeableHttpResponse = sendRequestWithBody(requestBody);
 
         Assert.assertEquals(closeableHttpResponse.getStatusLine().getStatusCode(), 200);
@@ -119,13 +164,31 @@ public class EndToEndIT {
         String responseBody = bufferedReader.lines().collect(Collectors.joining(System.lineSeparator()));
 
         Assert.assertEquals(responseBody, "{\"transfer-status\":\"Insufficient Balance\"}");
+
+        Account sourceAccountAfter = entityManager.find(Account.class, sourceAccountId);
+        Account targetAccountAfter = entityManager.find(Account.class, targetAccountId);
+
+        Assert.assertNotNull(sourceAccountAfter);
+        Assert.assertNotNull(targetAccountAfter);
+        Assert.assertEquals(sourceAccountAfter, sourceAccountBefore);
+        Assert.assertEquals(targetAccountBefore, targetAccountAfter);
+        Assert.assertEquals(sourceAccountBefore.getBalance().subtract(new BigDecimal("100500.0")).compareTo(BigDecimal.ZERO), -1);
     }
 
     @Test
     public void transferFromNonExistentAccount_IT() throws Exception {
-        String requestBody = "{ \"source-account\": \"15555\",\n" +
-                "\t\"target-account\": \"3\",\n" +
+        BigInteger imaginaryAccountId = new BigInteger("15555");
+        BigInteger targetAccountId = new BigInteger("3");
+        Account imaginaryAccountBefore = entityManager.find(Account.class, imaginaryAccountId);
+        Account targetAccountBefore = entityManager.find(Account.class, targetAccountId);
+
+        Assert.assertNotNull(targetAccountBefore);
+        Assert.assertNull(imaginaryAccountBefore);
+
+        String requestBody = "{ \"source-account\": \"" + imaginaryAccountId.toString() + "\",\n" +
+                "\t\"target-account\": \"" + targetAccountId.toString() + "\",\n" +
                 "\t\"amount\": \"500.0\" }";
+
         CloseableHttpResponse closeableHttpResponse = sendRequestWithBody(requestBody);
 
         Assert.assertEquals(closeableHttpResponse.getStatusLine().getStatusCode(), 200);
@@ -134,13 +197,24 @@ public class EndToEndIT {
         String responseBody = bufferedReader.lines().collect(Collectors.joining(System.lineSeparator()));
 
         Assert.assertEquals(responseBody, "{\"transfer-status\":\"Could not find Account(s)\"}");
+
+        Account imaginaryAccountAfter = entityManager.find(Account.class, imaginaryAccountId);
+        Account targetAccountAfter = entityManager.find(Account.class, targetAccountId);
+
+        Assert.assertNull(imaginaryAccountAfter);
+        Assert.assertNotNull(targetAccountAfter);
+        Assert.assertEquals(targetAccountAfter, targetAccountBefore);
     }
 
     @Test
     public void transferSenderRecipientAreTheSame_IT() throws Exception {
-        String requestBody = "{ \"source-account\": \"3\",\n" +
+        BigInteger accountId = new BigInteger("3");
+        Account selfTargetedBefore = entityManager.find(Account.class, accountId);
+
+        String requestBody = "{ \"source-account\": \"" + accountId.toString() +"\",\n" +
                 "\t\"target-account\": \"3\",\n" +
                 "\t\"amount\": \"500.0\" }";
+
         CloseableHttpResponse closeableHttpResponse = sendRequestWithBody(requestBody);
 
         Assert.assertEquals(closeableHttpResponse.getStatusLine().getStatusCode(), 200);
@@ -149,6 +223,13 @@ public class EndToEndIT {
         String responseBody = bufferedReader.lines().collect(Collectors.joining(System.lineSeparator()));
 
         Assert.assertEquals(responseBody, "{\"transfer-status\":\"Sender and Recipient is the same Account\"}");
+
+        if (selfTargetedBefore != null) {
+            Account selfTargetedAfter = entityManager.find(Account.class, accountId);
+
+            Assert.assertNotNull(selfTargetedAfter);
+            Assert.assertEquals(selfTargetedAfter, selfTargetedBefore);
+        }
     }
 
     private static CloseableHttpResponse sendRequestWithBody(String payload) throws Exception {
@@ -160,5 +241,11 @@ public class EndToEndIT {
 
         CloseableHttpClient client = HttpClients.createDefault();
         return client.execute(httpPut);
+    }
+
+    private static Long getRowCountsForTransferOrderTable() {
+        Query query = entityManager.createQuery("SELECT count(*) FROM transfer_order");
+
+        return (Long)query.getSingleResult();
     }
 }

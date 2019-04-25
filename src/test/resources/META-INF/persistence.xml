@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence version="2.1"
+             xmlns="http://xmlns.jcp.org/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence
+             http://xmlns.jcp.org/xml/ns/persistence/persistence_2_1.xsd">
+    <persistence-unit name="DummyBalanceTransferManagementTester" transaction-type="RESOURCE_LOCAL">
+        <properties>
+            <property name="javax.persistence.schema-generation.database.action" value="none"/>
+            <property name="javax.persistence.provider" value="org.hibernate.jpa.HibernatePersistenceProvider"/>
+            <property name="javax.persistence.jdbc.driver" value="org.h2.Driver"/>
+            <property name="javax.persistence.jdbc.url" value="jdbc:h2:mem:assignment;DB_CLOSE_DELAY=-1"/>
+            <property name="javax.persistence.jdbc.user" value="sa"/>
+            <property name="javax.persistence.jdbc.password" value=""/>
+            <property name="hibernate.connection.provider_disables_autocommit" value="true"/>
+            <property name="hibernate.hikari.minimumIdle" value="2"/>
+            <property name="hibernate.hikari.maximumPoolSize" value="2"/>
+            <property name="hibernate.hikari.idleTimeout" value="30000"/>
+            <property name="hibernate.connection.provider_class" value="org.hibernate.hikaricp.internal.HikariCPConnectionProvider"/>
+            <property name="hibernate.hbm2ddl.auto" value="update"/>
+            <property name="hibernate.hbm2ddl.import_files_sql_extractor" value="org.hibernate.tool.hbm2ddl.MultipleLinesSqlCommandExtractor"/>
+            <property name="hibernate.connection.charSet" value="UTF-8"/>
+            <property name="hibernate.format_sql" value="false"/>
+            <property name="hibernate.show_sql" value="true"/>
+        </properties>
+    </persistence-unit>
+</persistence>
