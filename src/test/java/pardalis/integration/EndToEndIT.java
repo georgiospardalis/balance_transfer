@@ -5,14 +5,36 @@ import org.apache.http.client.methods.HttpPut;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.junit.AfterClass;
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.stream.Collectors;
 
 public class EndToEndIT {
+    private static EntityManagerFactory entityManagerFactory;
+    private static EntityManager entityManager;
+    private static String requestUrl;
+
+    @BeforeClass
+    public static void init() {
+        entityManagerFactory = Persistence.createEntityManagerFactory("TestBalanceTransferManagement");
+        entityManager = entityManagerFactory.createEntityManager();
+    }
+
+    @AfterClass
+    public static void tearDown() {
+        entityManager.clear();
+        entityManager.close();
+        entityManagerFactory.close();
+    }
+
     @Test
     public void transferOK_IT() throws Exception {
         String requestBody = "{ \"source-account\": \"2\",\n" +
