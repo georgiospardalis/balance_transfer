@@ -1,5 +1,6 @@
 package pardalis.unit;
 
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -47,7 +48,7 @@ public class AccountControllerImplTest {
 
         TransferOrderResultDTO returnedValue = accountControllerImpl.transferMoney(validTransferOrderDTO);
 
-        assert(returnedValue.getTimestamp().equals(1234567890L));
+        Assert.assertEquals(returnedValue.getTimestamp(), new Long(1234567890L));
         assert(returnedValue.getTransferStatus().equals("Successful Transaction"));
     }
 
@@ -66,7 +67,7 @@ public class AccountControllerImplTest {
 
         TransferOrderResultDTO returnedValue = accountControllerImpl.transferMoney(validTransferOrderDTO);
 
-        assert(returnedValue.getTransferStatus().equals("Insufficient Balance"));
+        Assert.assertEquals(returnedValue.getTransferStatus(), "Insufficient Balance");
     }
 
     @Test
@@ -81,6 +82,6 @@ public class AccountControllerImplTest {
 
         TransferOrderResultDTO returnedValue = accountControllerImpl.transferMoney(invalidTransferOrderDTO);
 
-        assert(returnedValue.getTransferStatus().equals("Sender and Recipient is the same Account"));
+        Assert.assertEquals(returnedValue.getTransferStatus(), "Sender and Recipient is the same Account");
     }
 }

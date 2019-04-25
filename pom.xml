@@ -34,6 +34,7 @@
     <!-- "Test related dependencies versions" -->
     <junit.version>4.11</junit.version>
     <junit-surefire.version>2.12</junit-surefire.version>
+    <pre-post-integration-plugin.version>0.7</pre-post-integration-plugin.version>
     <hamcrest.version>1.3</hamcrest.version>
     <mockito.version>1.9.5</mockito.version>
     <apache-httpclient.version>4.5.8</apache-httpclient.version>
@@ -303,7 +304,7 @@
       <plugin>
         <groupId>com.bazaarvoice.maven.plugins</groupId>
         <artifactId>process-exec-maven-plugin</artifactId>
-        <version>0.7</version>
+        <version>${pre-post-integration-plugin.version}</version>
         <executions>
           <execution>
             <id>start-jar</id>

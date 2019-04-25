@@ -5,6 +5,7 @@ import org.apache.http.client.methods.HttpPut;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.BufferedReader;
@@ -19,12 +20,12 @@ public class EndToEndIT {
                 "\t\"amount\": \"500.0\" }";
         CloseableHttpResponse closeableHttpResponse = sendRequestWithBody(requestBody);
 
-        assert(closeableHttpResponse.getStatusLine().getStatusCode() == 200);
+        Assert.assertEquals(closeableHttpResponse.getStatusLine().getStatusCode(), 200);
 
         BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(closeableHttpResponse.getEntity().getContent()));
         String responseBody = bufferedReader.lines().collect(Collectors.joining(System.lineSeparator()));
 
-        assert(responseBody.toLowerCase().contains("successful transaction"));
+        Assert.assertTrue(responseBody.toLowerCase().contains("successful transaction"));
     }
 
     @Test
@@ -34,12 +35,12 @@ public class EndToEndIT {
                 "\t\"amount\": \"500.0\" }";
         CloseableHttpResponse closeableHttpResponse = sendRequestWithBody(requestBody);
 
-        assert(closeableHttpResponse.getStatusLine().getStatusCode() == 200);
+        Assert.assertEquals(closeableHttpResponse.getStatusLine().getStatusCode(), 200);
 
         BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(closeableHttpResponse.getEntity().getContent()));
         String responseBody = bufferedReader.lines().collect(Collectors.joining(System.lineSeparator()));
 
-        assert(responseBody.equals("{\"transfer-status\":\"Must provide both Accounts\"}"));
+        Assert.assertTrue(responseBody.equals("{\"transfer-status\":\"Must provide both Accounts\"}"));
     }
 
     @Test
@@ -49,12 +50,12 @@ public class EndToEndIT {
                 "\t\"amount\": \"-500.0\" }";
         CloseableHttpResponse closeableHttpResponse = sendRequestWithBody(requestBody);
 
-        assert(closeableHttpResponse.getStatusLine().getStatusCode() == 200);
+        Assert.assertEquals(closeableHttpResponse.getStatusLine().getStatusCode(), 200);
 
         BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(closeableHttpResponse.getEntity().getContent()));
         String responseBody = bufferedReader.lines().collect(Collectors.joining(System.lineSeparator()));
 
-        assert(responseBody.equals("{\"transfer-status\":\"Transfer Amount cannot be negative\"}"));
+        Assert.assertEquals(responseBody, "{\"transfer-status\":\"Transfer Amount cannot be negative\"}");
     }
 
 
@@ -65,12 +66,12 @@ public class EndToEndIT {
                 "\t\"amount\": \"100500.0\" }";
         CloseableHttpResponse closeableHttpResponse = sendRequestWithBody(requestBody);
 
-        assert(closeableHttpResponse.getStatusLine().getStatusCode() == 200);
+        Assert.assertEquals(closeableHttpResponse.getStatusLine().getStatusCode(), 200);
 
         BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(closeableHttpResponse.getEntity().getContent()));
         String responseBody = bufferedReader.lines().collect(Collectors.joining(System.lineSeparator()));
 
-        assert(responseBody.equals("{\"transfer-status\":\"Insufficient Balance\"}"));
+        Assert.assertEquals(responseBody, "{\"transfer-status\":\"Insufficient Balance\"}");
     }
 
     @Test
@@ -80,12 +81,12 @@ public class EndToEndIT {
                 "\t\"amount\": \"500.0\" }";
         CloseableHttpResponse closeableHttpResponse = sendRequestWithBody(requestBody);
 
-        assert(closeableHttpResponse.getStatusLine().getStatusCode() == 200);
+        Assert.assertEquals(closeableHttpResponse.getStatusLine().getStatusCode(), 200);
 
         BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(closeableHttpResponse.getEntity().getContent()));
         String responseBody = bufferedReader.lines().collect(Collectors.joining(System.lineSeparator()));
 
-        assert(responseBody.equals("{\"transfer-status\":\"Could not find Account(s)\"}"));
+        Assert.assertEquals(responseBody, "{\"transfer-status\":\"Could not find Account(s)\"}");
     }
 
     @Test
@@ -95,12 +96,12 @@ public class EndToEndIT {
                 "\t\"amount\": \"500.0\" }";
         CloseableHttpResponse closeableHttpResponse = sendRequestWithBody(requestBody);
 
-        assert(closeableHttpResponse.getStatusLine().getStatusCode() == 200);
+        Assert.assertEquals(closeableHttpResponse.getStatusLine().getStatusCode(), 200);
 
         BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(closeableHttpResponse.getEntity().getContent()));
         String responseBody = bufferedReader.lines().collect(Collectors.joining(System.lineSeparator()));
 
-        assert(responseBody.equals("{\"transfer-status\":\"Sender and Recipient is the same Account\"}"));
+        Assert.assertEquals(responseBody, "{\"transfer-status\":\"Sender and Recipient is the same Account\"}");
     }
 
     private static CloseableHttpResponse sendRequestWithBody(String payload) throws Exception {
