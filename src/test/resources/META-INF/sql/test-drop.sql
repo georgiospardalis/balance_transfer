@@ -1,0 +1,2 @@
+DROP TABLE IF EXISTS transfer_order;
+DROP TABLE IF EXISTS account;
