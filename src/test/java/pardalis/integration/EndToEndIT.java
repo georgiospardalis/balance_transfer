@@ -24,6 +24,8 @@ import java.math.BigInteger;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
+//TODO check for new rows when needed on transfer_order table
+
 public class EndToEndIT {
     private static EntityManagerFactory entityManagerFactory;
     private static EntityManager entityManager;
@@ -56,6 +58,8 @@ public class EndToEndIT {
         BigInteger targetAccountId = new BigInteger("3");
         Account sourceAccountBefore = entityManager.find(Account.class, sourceAccountId);
         Account targetAccountBefore = entityManager.find(Account.class, targetAccountId);
+        Long transactionsBefore = getRowCountsForTransferOrderTable();
+        Long transactionsAfterExpected = transactionsBefore + 1;
 
         Assert.assertNotNull(sourceAccountBefore);
         Assert.assertNotNull(targetAccountBefore);
@@ -75,7 +79,9 @@ public class EndToEndIT {
 
         Account sourceAccountAfter = entityManager.find(Account.class, sourceAccountId);
         Account targetAccountAfter = entityManager.find(Account.class, targetAccountId);
+        Long transactionsAfter = getRowCountsForTransferOrderTable();
 
+        Assert.assertEquals(transactionsAfter, transactionsAfterExpected);
         Assert.assertNotNull(sourceAccountAfter);
         Assert.assertNotNull(targetAccountAfter);
         Assert.assertEquals(sourceAccountBefore.getBalance().subtract(sourceAccountAfter.getBalance()), new BigDecimal("500.0"));
@@ -85,6 +91,7 @@ public class EndToEndIT {
     public void transferNoAccount_IT() throws Exception {
         BigInteger targetAccountId = new BigInteger("3");
         Account targetAccountBefore = entityManager.find(Account.class, targetAccountId);
+        Long transactionsBefore = getRowCountsForTransferOrderTable();
 
         String requestBody = "{ \"source-account\": \"\",\n" +
                 "\t\"target-account\": \"" + targetAccountId.toString() + "\",\n" +
@@ -98,6 +105,7 @@ public class EndToEndIT {
         String responseBody = bufferedReader.lines().collect(Collectors.joining(System.lineSeparator()));
 
         Assert.assertEquals(responseBody, "{\"transfer-status\":\"Must provide both Accounts\"}");
+        Assert.assertEquals(transactionsBefore, getRowCountsForTransferOrderTable());
 
         if (targetAccountBefore != null) {
             Account targetAccountAfter = entityManager.find(Account.class, targetAccountId);
@@ -113,6 +121,7 @@ public class EndToEndIT {
         BigInteger targetAccountId = new BigInteger("3");
         Account sourceAccountBefore = entityManager.find(Account.class, sourceAccountId);
         Account targetAccountBefore = entityManager.find(Account.class, targetAccountId);
+        Long transactionsBefore = getRowCountsForTransferOrderTable();
 
         String requestBody = "{ \"source-account\": \"" + sourceAccountId.toString() + "\",\n" +
                 "\t\"target-account\": \"" + targetAccountId.toString() + "\",\n" +
@@ -126,6 +135,7 @@ public class EndToEndIT {
         String responseBody = bufferedReader.lines().collect(Collectors.joining(System.lineSeparator()));
 
         Assert.assertEquals(responseBody, "{\"transfer-status\":\"Transfer Amount cannot be negative\"}");
+        Assert.assertEquals(transactionsBefore, getRowCountsForTransferOrderTable());
 
         if (sourceAccountBefore != null) {
             Account sourceAccountAfter = entityManager.find(Account.class, sourceAccountId);
@@ -148,6 +158,7 @@ public class EndToEndIT {
         BigInteger targetAccountId = new BigInteger("3");
         Account sourceAccountBefore = entityManager.find(Account.class, sourceAccountId);
         Account targetAccountBefore = entityManager.find(Account.class, targetAccountId);
+        Long transactionsBefore = getRowCountsForTransferOrderTable();
 
         Assert.assertNotNull(sourceAccountBefore);
         Assert.assertNotNull(targetAccountBefore);
@@ -164,6 +175,7 @@ public class EndToEndIT {
         String responseBody = bufferedReader.lines().collect(Collectors.joining(System.lineSeparator()));
 
         Assert.assertEquals(responseBody, "{\"transfer-status\":\"Insufficient Balance\"}");
+        Assert.assertEquals(transactionsBefore, getRowCountsForTransferOrderTable());
 
         Account sourceAccountAfter = entityManager.find(Account.class, sourceAccountId);
         Account targetAccountAfter = entityManager.find(Account.class, targetAccountId);
@@ -181,6 +193,7 @@ public class EndToEndIT {
         BigInteger targetAccountId = new BigInteger("3");
         Account imaginaryAccountBefore = entityManager.find(Account.class, imaginaryAccountId);
         Account targetAccountBefore = entityManager.find(Account.class, targetAccountId);
+        Long transactionsBefore = getRowCountsForTransferOrderTable();
 
         Assert.assertNotNull(targetAccountBefore);
         Assert.assertNull(imaginaryAccountBefore);
@@ -197,6 +210,7 @@ public class EndToEndIT {
         String responseBody = bufferedReader.lines().collect(Collectors.joining(System.lineSeparator()));
 
         Assert.assertEquals(responseBody, "{\"transfer-status\":\"Could not find Account(s)\"}");
+        Assert.assertEquals(transactionsBefore, getRowCountsForTransferOrderTable());
 
         Account imaginaryAccountAfter = entityManager.find(Account.class, imaginaryAccountId);
         Account targetAccountAfter = entityManager.find(Account.class, targetAccountId);
@@ -210,6 +224,7 @@ public class EndToEndIT {
     public void transferSenderRecipientAreTheSame_IT() throws Exception {
         BigInteger accountId = new BigInteger("3");
         Account selfTargetedBefore = entityManager.find(Account.class, accountId);
+        Long transactionsBefore = getRowCountsForTransferOrderTable();
 
         String requestBody = "{ \"source-account\": \"" + accountId.toString() +"\",\n" +
                 "\t\"target-account\": \"3\",\n" +
@@ -223,6 +238,7 @@ public class EndToEndIT {
         String responseBody = bufferedReader.lines().collect(Collectors.joining(System.lineSeparator()));
 
         Assert.assertEquals(responseBody, "{\"transfer-status\":\"Sender and Recipient is the same Account\"}");
+        Assert.assertEquals(transactionsBefore, getRowCountsForTransferOrderTable());
 
         if (selfTargetedBefore != null) {
             Account selfTargetedAfter = entityManager.find(Account.class, accountId);
