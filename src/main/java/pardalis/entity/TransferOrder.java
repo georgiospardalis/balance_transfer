@@ -3,6 +3,7 @@ package pardalis.entity;
 import javax.persistence.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.Objects;
 
 @Entity(name = "TransferOrder")
 @Table(name = "transfer_order")
@@ -78,5 +79,29 @@ public class TransferOrder {
 
     public void setTransferAmount(BigDecimal transferAmount) {
         this.transferAmount = transferAmount;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        TransferOrder that = (TransferOrder) o;
+
+        return transferId.equals(that.transferId) &&
+                timestamp.equals(that.timestamp) &&
+                sourceAccountId.equals(that.sourceAccountId) &&
+                targetAccountId.equals(that.targetAccountId) &&
+                transferAmount.equals(that.transferAmount);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(transferId, timestamp, sourceAccountId, targetAccountId, transferAmount);
     }
 }
