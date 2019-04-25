@@ -18,6 +18,7 @@
     <project.app-properties.jetty.threads.max>100</project.app-properties.jetty.threads.max>
     <project.app-properties.jetty.threads.min>50</project.app-properties.jetty.threads.min>
     <project.app-properties.jetty.idle.timeout>120</project.app-properties.jetty.idle.timeout>
+    <project.app-properties.h2.shared-state>true</project.app-properties.h2.shared-state>
     <project.app-properties.h2.tcp.port>9090</project.app-properties.h2.tcp.port>
 
 

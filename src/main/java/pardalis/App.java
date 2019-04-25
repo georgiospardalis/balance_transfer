@@ -44,9 +44,11 @@ public class App {
                 Integer.parseInt(properties.getProperty("jetty.threads.min")),
                 Integer.parseInt(properties.getProperty("jetty.idle.timeout")));
 
-
         try {
-            setupH2(properties.getProperty("h2.tcp.port"));
+            if (Boolean.parseBoolean(properties.getProperty("h2.shared-state"))) {
+                startTcpExposedH2(properties.getProperty("h2.tcp.port"));
+            }
+
             jettyServer.start();
             jettyServer.join();
         } catch (Exception e) {
@@ -80,7 +82,7 @@ public class App {
         return server;
     }
 
-    private static void setupH2(String h2TcpPort) throws SQLException {
+    private static void startTcpExposedH2(String h2TcpPort) throws SQLException {
         createTcpServer("-tcp", "-tcpAllowOthers", "-tcpPort", h2TcpPort).start();
     }
 }
