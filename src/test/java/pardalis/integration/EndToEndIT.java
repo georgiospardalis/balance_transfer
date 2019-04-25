@@ -9,22 +9,33 @@ import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import pardalis.entity.Account;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.math.BigDecimal;
+import java.util.Properties;
 import java.util.stream.Collectors;
 
 public class EndToEndIT {
     private static EntityManagerFactory entityManagerFactory;
     private static EntityManager entityManager;
-    private static String requestUrl;
+    private static String requestUrl = "http://localhost:";
 
     @BeforeClass
-    public static void init() {
-        entityManagerFactory = Persistence.createEntityManagerFactory("TestBalanceTransferManagement");
+    public static void init() throws IOException {
+        InputStream inputStream = EndToEndIT.class.getResourceAsStream("/app.properties");
+        Properties properties = new Properties();
+
+        properties.load(inputStream);
+
+        requestUrl = requestUrl + properties.getProperty("jetty.server.port") + "/transaction/balance_transfer";
+        entityManagerFactory = Persistence.createEntityManagerFactory(properties.getProperty("persistenceUnit"));
         entityManager = entityManagerFactory.createEntityManager();
     }
 
@@ -40,6 +51,13 @@ public class EndToEndIT {
         String requestBody = "{ \"source-account\": \"2\",\n" +
                 "\t\"target-account\": \"3\",\n" +
                 "\t\"amount\": \"500.0\" }";
+
+        Account sourceAccountUntouched = entityManager.find(Account.class, 2);
+        Account targetAccountUntouched = entityManager.find(Account.class, 3);
+
+        Assert.assertNotNull(sourceAccountUntouched);
+        Assert.assertNotNull(targetAccountUntouched);
+
         CloseableHttpResponse closeableHttpResponse = sendRequestWithBody(requestBody);
 
         Assert.assertEquals(closeableHttpResponse.getStatusLine().getStatusCode(), 200);
@@ -48,6 +66,13 @@ public class EndToEndIT {
         String responseBody = bufferedReader.lines().collect(Collectors.joining(System.lineSeparator()));
 
         Assert.assertTrue(responseBody.toLowerCase().contains("successful transaction"));
+
+        Account sourceAccountAltered = entityManager.find(Account.class, 2);
+        Account targetAccountAltered = entityManager.find(Account.class, 3);
+
+        Assert.assertNotNull(sourceAccountAltered);
+        Assert.assertNotNull(targetAccountAltered);
+        Assert.assertEquals(sourceAccountUntouched.getBalance().subtract(sourceAccountAltered.getBalance()), new BigDecimal("500.0"));
     }
 
     @Test
@@ -62,7 +87,7 @@ public class EndToEndIT {
         BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(closeableHttpResponse.getEntity().getContent()));
         String responseBody = bufferedReader.lines().collect(Collectors.joining(System.lineSeparator()));
 
-        Assert.assertTrue(responseBody.equals("{\"transfer-status\":\"Must provide both Accounts\"}"));
+        Assert.assertEquals(responseBody, "{\"transfer-status\":\"Must provide both Accounts\"}");
     }
 
     @Test
@@ -127,8 +152,7 @@ public class EndToEndIT {
     }
 
     private static CloseableHttpResponse sendRequestWithBody(String payload) throws Exception {
-        String url = "http://localhost:28960/transaction/balance_transfer";
-        HttpPut httpPut = new HttpPut(url);
+        HttpPut httpPut = new HttpPut(requestUrl);
         StringEntity entity = new StringEntity(payload, "UTF-8");
 
         entity.setContentType("application/json");
