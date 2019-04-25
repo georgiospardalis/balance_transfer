@@ -15,8 +15,11 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.sql.SQLException;
 import java.util.EnumSet;
 import java.util.Properties;
+
+import static org.h2.tools.Server.createTcpServer;
 
 public class App {
     private static final Logger LOGGER = LoggerFactory.getLogger(App.class);
@@ -41,11 +44,13 @@ public class App {
                 Integer.parseInt(properties.getProperty("jetty.threads.min")),
                 Integer.parseInt(properties.getProperty("jetty.idle.timeout")));
 
+
         try {
+            setupH2(properties.getProperty("h2.tcp.port"));
             jettyServer.start();
             jettyServer.join();
         } catch (Exception e) {
-            LOGGER.error("Jetty Embedded Startup Failed", e);
+            LOGGER.error("Server(s) Startup Failed", e);
             System.exit(1);
         }
     }
@@ -65,7 +70,7 @@ public class App {
         ServerConnector serverConnector = new ServerConnector(server);
 
         serverConnector.setPort(serverPort);
-        server.setConnectors(new Connector[] {serverConnector});
+        server.setConnectors(new Connector[]{serverConnector});
 
         ServletContextHandler servletContextHandler = new ServletContextHandler(server, "/", ServletContextHandler.SESSIONS);
 
@@ -73,5 +78,9 @@ public class App {
         servletContextHandler.addServlet(DefaultServlet.class, "/*");
 
         return server;
+    }
+
+    private static void setupH2(String h2TcpPort) throws SQLException {
+        createTcpServer("-tcp", "-tcpAllowOthers", "-tcpPort", h2TcpPort).start();
     }
 }
