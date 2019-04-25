@@ -48,8 +48,8 @@ public class AccountControllerImplTest {
 
         TransferOrderResultDTO returnedValue = accountControllerImpl.transferMoney(validTransferOrderDTO);
 
-        Assert.assertEquals(returnedValue.getTimestamp(), new Long(1234567890L));
-        assert(returnedValue.getTransferStatus().equals("Successful Transaction"));
+        Assert.assertEquals(new Long(1234567890L), returnedValue.getTimestamp());
+        Assert.assertEquals("Successful Transaction", returnedValue.getTransferStatus());
     }
 
     @Test
@@ -67,7 +67,7 @@ public class AccountControllerImplTest {
 
         TransferOrderResultDTO returnedValue = accountControllerImpl.transferMoney(validTransferOrderDTO);
 
-        Assert.assertEquals(returnedValue.getTransferStatus(), "Insufficient Balance");
+        Assert.assertEquals("Insufficient Balance", returnedValue.getTransferStatus());
     }
 
     @Test
@@ -82,6 +82,6 @@ public class AccountControllerImplTest {
 
         TransferOrderResultDTO returnedValue = accountControllerImpl.transferMoney(invalidTransferOrderDTO);
 
-        Assert.assertEquals(returnedValue.getTransferStatus(), "Sender and Recipient is the same Account");
+        Assert.assertEquals("Sender and Recipient is the same Account", returnedValue.getTransferStatus());
     }
 }

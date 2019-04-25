@@ -82,7 +82,7 @@ public class EndToEndIT {
         Account targetAccountAfter = entityManager.find(Account.class, targetAccountId);
         Long transactionsAfter = getRowCountsForTransferOrderTable();
 
-        Assert.assertEquals(transactionsAfter, transactionsAfterExpected);
+        Assert.assertEquals(transactionsAfterExpected, transactionsAfter);
         Assert.assertNotNull(sourceAccountAfter);
         Assert.assertNotNull(targetAccountAfter);
         Assert.assertEquals(new BigDecimal("500.00"), sourceAccountBefore.getBalance().subtract(sourceAccountAfter.getBalance()));
