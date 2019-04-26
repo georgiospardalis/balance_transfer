@@ -84,9 +84,9 @@ public class EndToEndIT {
         TransferOrder transferOrder = entityManager.find(TransferOrder.class, jsonObject.get("transferId"));
 
         Assert.assertNotNull(transferOrder);
-        Assert.assertEquals(transferOrder.getSourceAccountId(), sourceAccountId);
-        Assert.assertEquals(transferOrder.getTargetAccountId(), targetAccountId);
-        Assert.assertEquals(transferOrder.getTransferAmount(), new BigDecimal("500.00"));
+        Assert.assertEquals(sourceAccountId, transferOrder.getSourceAccountId());
+        Assert.assertEquals(targetAccountId, transferOrder.getTargetAccountId());
+        Assert.assertEquals(new BigDecimal("500.00"), transferOrder.getTransferAmount());
         Assert.assertEquals(transferOrder.getTimestamp(), jsonObject.get("timestamp"));
     }
 
