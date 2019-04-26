@@ -8,7 +8,6 @@ import org.apache.http.impl.client.HttpClients;
 
 public class RequestUtils {
     private RequestUtils() {
-
     }
 
     public static CloseableHttpResponse sendPUTRequestWithJsonBody(String requestUrl, String payload) throws Exception {

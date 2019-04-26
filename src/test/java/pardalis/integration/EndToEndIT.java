@@ -39,6 +39,11 @@ public class EndToEndIT {
         entityManager = entityManagerFactory.createEntityManager();
     }
 
+    @Before
+    public void synchPersistenceContextWithDB() {
+        entityManager.clear();
+    }
+
     @AfterClass
     public static void tearDown() {
         entityManager.clear();
