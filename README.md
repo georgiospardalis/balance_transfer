@@ -6,11 +6,11 @@ to perform balance transfers from an account to another.
 
 ## How to test it
 - For unit tests execute `mvn clean test`
-- For integration tests `mvn clean integration-test`
+- For integration tests `mvn clean integration-test -P dummy-persistence`
 
 ## How to run it
-Before being able to execute the jar, you must first create it. Run `mvn clean package` under the root folder of this
-repository. This will create the ``jar`` file under the `target` folder.
+Before being able to execute the jar, you must first create it. Run `mvn clean package` (no profile needed here) under 
+the root folder of this repository. This will create the ``jar`` file under the `target` folder.
 
 Run `java -jar ./target/revolut-assignment-${project.version}.jar` without providing any extra arguments or environment
 variables. This will start the embedded server, the database, and preload it with the following sample data
