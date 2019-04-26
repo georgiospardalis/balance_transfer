@@ -1,9 +1,11 @@
 package pardalis.integration;
 
 import org.apache.http.client.methods.CloseableHttpResponse;
+import org.json.JSONObject;
 import org.junit.*;
 import pardalis.RequestUtils;
 import pardalis.entity.Account;
+import pardalis.entity.TransferOrder;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -37,13 +39,6 @@ public class EndToEndIT {
         entityManager = entityManagerFactory.createEntityManager();
     }
 
-    @Before
-    public void initEntityManager() {
-        entityManager.clear();
-        entityManager.close();
-        entityManager = entityManagerFactory.createEntityManager();
-    }
-
     @AfterClass
     public static void tearDown() {
         entityManager.clear();
@@ -73,7 +68,7 @@ public class EndToEndIT {
 
         Assert.assertTrue(responseBody.toLowerCase().contains("successful transaction"));
 
-        initEntityManager();
+        entityManager.clear();
 
         Account sourceAccountAfter = entityManager.find(Account.class, sourceAccountId);
         Account targetAccountAfter = entityManager.find(Account.class, targetAccountId);
@@ -84,6 +79,15 @@ public class EndToEndIT {
         Assert.assertNotNull(targetAccountAfter);
         Assert.assertEquals(new BigDecimal("500.00"), sourceAccountBefore.getBalance().subtract(sourceAccountAfter.getBalance()));
         Assert.assertEquals(targetAccountBefore.getBalance().add(new BigDecimal("500.00")), targetAccountAfter.getBalance());
+
+        JSONObject jsonObject = new JSONObject(responseBody);
+        TransferOrder transferOrder = entityManager.find(TransferOrder.class, jsonObject.get("transferId"));
+
+        Assert.assertNotNull(transferOrder);
+        Assert.assertEquals(transferOrder.getSourceAccountId(), sourceAccountId);
+        Assert.assertEquals(transferOrder.getTargetAccountId(), targetAccountId);
+        Assert.assertEquals(transferOrder.getTransferAmount(), new BigDecimal("500.00"));
+        Assert.assertEquals(transferOrder.getTimestamp(), jsonObject.get("timestamp"));
     }
 
     @Test
@@ -99,7 +103,7 @@ public class EndToEndIT {
         BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(closeableHttpResponse.getEntity().getContent()));
         String responseBody = bufferedReader.lines().collect(Collectors.joining(System.lineSeparator()));
 
-        initEntityManager();
+        entityManager.clear();
 
         Assert.assertEquals(responseBody, "{\"transfer-status\":\"Must provide both Accounts\"}");
         Assert.assertEquals(transactionsBefore, getRowCountsForTransferOrderTable());
@@ -127,7 +131,7 @@ public class EndToEndIT {
         BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(closeableHttpResponse.getEntity().getContent()));
         String responseBody = bufferedReader.lines().collect(Collectors.joining(System.lineSeparator()));
 
-        initEntityManager();
+        entityManager.clear();
 
         Assert.assertEquals(responseBody, "{\"transfer-status\":\"Transfer Amount cannot be negative\"}");
         Assert.assertEquals(transactionsBefore, getRowCountsForTransferOrderTable());
@@ -166,7 +170,7 @@ public class EndToEndIT {
         BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(closeableHttpResponse.getEntity().getContent()));
         String responseBody = bufferedReader.lines().collect(Collectors.joining(System.lineSeparator()));
 
-        initEntityManager();
+        entityManager.clear();
 
         Assert.assertEquals(responseBody, "{\"transfer-status\":\"Insufficient Balance\"}");
         Assert.assertEquals(transactionsBefore, getRowCountsForTransferOrderTable());
@@ -200,7 +204,7 @@ public class EndToEndIT {
         BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(closeableHttpResponse.getEntity().getContent()));
         String responseBody = bufferedReader.lines().collect(Collectors.joining(System.lineSeparator()));
 
-        initEntityManager();
+        entityManager.clear();
 
         Assert.assertEquals(responseBody, "{\"transfer-status\":\"Could not find Account(s)\"}");
         Assert.assertEquals(transactionsBefore, getRowCountsForTransferOrderTable());
@@ -226,7 +230,7 @@ public class EndToEndIT {
         BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(closeableHttpResponse.getEntity().getContent()));
         String responseBody = bufferedReader.lines().collect(Collectors.joining(System.lineSeparator()));
 
-        initEntityManager();
+        entityManager.clear();
 
         Assert.assertEquals(responseBody, "{\"transfer-status\":\"Sender and Recipient is the same Account\"}");
         Assert.assertEquals(transactionsBefore, getRowCountsForTransferOrderTable());
