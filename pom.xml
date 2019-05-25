@@ -6,9 +6,9 @@
 
 
   <groupId>pardalis</groupId>
-  <artifactId>revolut-assignment</artifactId>
+  <artifactId>balance_transfer</artifactId>
   <version>1.0-SNAPSHOT</version>
-  <name>revolut-assignment</name>
+  <name>balance_transfer</name>
   <packaging>jar</packaging>
 
   <properties>
@@ -345,7 +345,7 @@
               <arguments>
                 <argument>java</argument>
                 <argument>-jar</argument>
-                <argument>revolut-assignment-${project.version}.jar</argument>
+                <argument>balance_transfer-${project.version}.jar</argument>
               </arguments>
             </configuration>
           </execution>

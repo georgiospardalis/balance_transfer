@@ -1,8 +1,7 @@
-# Backend Revolut Assignment
+# Balance Transfer App
 
 ## Description
-This is an assignment for the Revolut Backend Software Engineer Position. It provides a RESTful endpoint with the ability
-to perform balance transfers from an account to another.
+This is a demo app that allows balance transfers between accounts.
 
 ## How to test it
 - For unit tests execute `mvn clean test`
@@ -12,7 +11,7 @@ to perform balance transfers from an account to another.
 Before being able to execute the jar, you must first create it. Run `mvn clean package` (no profile needed here) under 
 the root folder of this repository. This will create the ``jar`` file under the `target` folder.
 
-Run `java -jar ./target/revolut-assignment-${project.version}.jar` without providing any extra arguments or environment
+Run `java -jar ./target/balance_transfer-${project.version}.jar` without providing any extra arguments or environment
 variables. This will start the embedded server, the database, and preload it with the following sample data
 (both for "production" and testing purposes):
 
